@@ -18,6 +18,7 @@
  */
 
 import {
+  MessagePayload, MessageType,
 
   Puppet,
   PuppetOptions,
@@ -33,6 +34,8 @@ import * as http from 'http'
 import * as net from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
 import * as crypto from 'crypto'
+import cuid from 'cuid'
+import { MessagePayloadBase } from 'wechaty-puppet/dist/src/schemas/message'
 export type DingRobotOptions = {
   port?: number,
   host?:string,
@@ -52,10 +55,12 @@ class PuppetDing extends Puppet {
   public static readonly VERSION = VERSION
   private server: net.Server | undefined
   private secret: string | undefined
+  private message: Map<string, MessagePayload>
   constructor (
     public options: PuppetDingOptions = {},
   ) {
     super(options)
+    this.message = new Map<string, MessagePayload>()
     if (options.robot) {
       const robot = options.robot
       let port: number
@@ -91,10 +96,30 @@ class PuppetDing extends Puppet {
   private async robotCallback (req: IncomingMessage, res: ServerResponse) {
     if (req.headers.timestamp && Math.abs(new Date().getTime() - Number(req.headers.timestamp)) < 1000 * 60 * 60) {
       if (!this.checkSign(req.headers.timestamp as string, req.headers.sign as string)) {
+        let text = ''
+        req.on('data', d => { text += d.toString() })
+        req.on('end', () => {
+          const basePayload: MessagePayloadBase = {
+            id        : cuid(),
+            text,
+            timestamp : Date.now(),
+            type      : MessageType.Text,
+          }
+          this.message.set(basePayload.id, basePayload as MessagePayload)
+          this.emit('message', { messageId:basePayload.id })
+        })
 
       }
     }
     res.end()
+  }
+
+  protected async messageRawPayload (messageId: string) {
+    return messageId
+  }
+
+  protected async messageRawPayloadParser (rawPayload: any) {
+    return this.message.get(rawPayload) as MessagePayload
   }
 
 }
