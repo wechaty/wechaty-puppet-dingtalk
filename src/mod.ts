@@ -2,13 +2,10 @@ import {
   VERSION,
 }             from './config'
 
-import { PuppetMock } from './puppet-mock'
-
-import * as mock  from './mock/mod'
+import { PuppetDing } from './puppet-ding'
 
 export {
   VERSION,
-  PuppetMock,
-  mock,
+  PuppetDing,
 }
-export default PuppetMock
+export default PuppetDing
