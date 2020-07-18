@@ -1,6 +1,6 @@
 {
   "name": "wechaty-puppet-dingtalk",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Dingtalk Puppet for Wechaty",
   "directories": {
     "test": "tests"
