@@ -89,7 +89,6 @@ class PuppetDing extends Puppet {
     }
     const stringToSign = `${timestamp}\n${this.secret}`
     const s = crypto.createHmac('sha256', Buffer.from(this.secret, 'utf8')).update(stringToSign).digest('base64')
-    log.info(String(s === sign))
     return s === sign
   }
 
@@ -107,11 +106,11 @@ class PuppetDing extends Puppet {
           }
           this.message.set(basePayload.id, basePayload as MessagePayload)
           this.emit('message', { messageId:basePayload.id })
+          res.end()
         })
 
       }
     }
-    res.end()
   }
 
   protected async messageRawPayload (messageId: string) {
