@@ -67,11 +67,11 @@ class PuppetDing extends Puppet {
       let host = robot.host || '0.0.0.0'
       let ssl = false
       if (robot.key && robot.cert) {
-        this.server = https.createServer({ cert:robot.cert, key:robot.key }, this.robotCallback)
+        this.server = https.createServer({ cert:robot.cert, key:robot.key }, this.robotCallback.bind(this))
         port = robot.port || 443
         ssl = true
       } else {
-        this.server = http.createServer(this.robotCallback)
+        this.server = http.createServer(this.robotCallback.bind(this))
         port = robot.port || 80
       }
       this.server.listen(port, host)
@@ -94,15 +94,15 @@ class PuppetDing extends Puppet {
   }
 
   private async robotCallback (req: IncomingMessage, res: ServerResponse) {
-    if (req.headers.timestamp && Math.abs(new Date().getTime() - Number(req.headers.timestamp)) < 1000 * 60 * 60) {
-      if (!this.checkSign(req.headers.timestamp as string, req.headers.sign as string)) {
+    if (req.headers.timestamp && Math.abs(Date.now() - Number(req.headers.timestamp)) < 1000 * 60 * 60) {
+      if (this.checkSign(req.headers.timestamp as string, req.headers.sign as string)) {
         let text = ''
         req.on('data', d => { text += d.toString() })
         req.on('end', () => {
           const basePayload: MessagePayloadBase = {
             id        : cuid(),
             text,
-            timestamp : Date.now(),
+            timestamp :  Number(req.headers.timestamp),
             type      : MessageType.Text,
           }
           this.message.set(basePayload.id, basePayload as MessagePayload)

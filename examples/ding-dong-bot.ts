@@ -16,3 +16,11 @@
  *   limitations under the License.
  *
  */
+import { PuppetDing } from '../src/mod'
+import { log } from 'brolog'
+
+const puppet = new PuppetDing({ robot:{ port:3000 } })
+
+puppet.on('message', i => {
+  log.info('11', i.messageId)
+})
