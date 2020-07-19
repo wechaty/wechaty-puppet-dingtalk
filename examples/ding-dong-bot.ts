@@ -31,8 +31,9 @@ const puppet = new PuppetDing({ robot:{ port:3000 } })
 puppet.on('message', async i => {
   log.info('11', i.messageId)
   const wh = JSON.parse((await puppet.messagePayload(i.messageId)).text as string).sessionWebhook
-  if (/ping/gi.test(JSON.parse((await puppet.messagePayload(i.messageId)).text as string).text.content)) {
+  if (/ping/gi.test((await puppet.messagePayload(i.messageId)).text as string)) {
     // eslint-disable-next-line promise/catch-or-return
+    console.log((await puppet.messagePayload(i.messageId)).text as string)
     axios.post(wh, send, { headers:{ 'Content-Type':'application/json' } }).then(data => {
       log.info('test', data.data)
       return null

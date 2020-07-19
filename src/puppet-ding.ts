@@ -34,8 +34,6 @@ import * as http from 'http'
 import * as net from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
 import * as crypto from 'crypto'
-import cuid from 'cuid'
-import { MessagePayloadBase } from 'wechaty-puppet/dist/src/schemas/message'
 export type DingRobotOptions = {
   port?: number,
   host?:string,
@@ -53,8 +51,8 @@ export type PuppetDingOptions = PuppetOptions & {
 class PuppetDing extends Puppet {
 
   public static readonly VERSION = VERSION
-  private server: net.Server | undefined
-  private secret: string | undefined
+  private server?: net.Server
+  private secret?: string
   private message: Map<string, MessagePayload>
   constructor (
     public options: PuppetDingOptions = {},
@@ -98,13 +96,18 @@ class PuppetDing extends Puppet {
         let text = ''
         req.on('data', d => { text += d.toString() })
         req.on('end', () => {
-          const basePayload: MessagePayloadBase = {
-            id        : cuid(),
-            text,
+          let json = JSON.parse(text)
+          const basePayload: MessagePayload = {
+            fromId: json.senderId,
+            id        : json.msgId,
+            roomId: json.conversationId,
+            text: json.text,
             timestamp :  Number(req.headers.timestamp),
+            toId: json.chatbotUserId,
             type      : MessageType.Text,
           }
-          this.message.set(basePayload.id, basePayload as MessagePayload)
+          log.info('d',json.sessionWebhook)
+          this.message.set(basePayload.id, basePayload)
           this.emit('message', { messageId:basePayload.id })
           res.end()
         })
