@@ -34,6 +34,8 @@ import * as http from 'http'
 import * as net from 'net'
 import { IncomingMessage, ServerResponse } from 'http'
 import * as crypto from 'crypto'
+import { RoomDing } from './room-ding'
+import { TextMessage } from './message'
 export type DingRobotOptions = {
   port?: number,
   host?:string,
@@ -42,8 +44,13 @@ export type DingRobotOptions = {
   appKey?:string,
   appSecret?:string,
 }
+export type ContactOptions = {
+  appKey:string,
+  appSecret:string,
+}
 export type PuppetDingOptions = PuppetOptions & {
   robot?:DingRobotOptions,
+  contact?:ContactOptions
 }
 
 // WIP
@@ -101,12 +108,12 @@ class PuppetDing extends Puppet {
             fromId: json.senderId,
             id        : json.msgId,
             roomId: json.conversationId,
-            text: json.text,
+            text: json.text.content,
             timestamp :  Number(req.headers.timestamp),
             toId: json.chatbotUserId,
             type      : MessageType.Text,
           }
-          log.info('d',json.sessionWebhook)
+          RoomDing.create(json.conversationId, json.sessionWebhook)
           this.message.set(basePayload.id, basePayload)
           this.emit('message', { messageId:basePayload.id })
           res.end()
@@ -122,6 +129,10 @@ class PuppetDing extends Puppet {
 
   protected async messageRawPayloadParser (rawPayload: any) {
     return this.message.get(rawPayload) as MessagePayload
+  }
+
+  public async messageSendText (conversationId: string, text: string, mentionIdList?: string[]) {
+    return RoomDing.getRoom(conversationId).sendMessage(new TextMessage(text, mentionIdList))
   }
 
 }

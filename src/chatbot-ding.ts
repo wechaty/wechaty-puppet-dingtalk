@@ -20,8 +20,8 @@ export class ChatbotDing {
       log.error('sendMeaasge', 'send to quick!')
       return
     }
-    this.rate++
-    setTimeout(() => this.rate--, 60 * 1000 + 100)
+    // this.rate++
+    // setTimeout(() => this.rate--, 60 * 1000 + 100)
     try {
       await axios.post(this.hookUrl, JSON.stringify(message), { headers })
     } catch (e) {

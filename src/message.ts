@@ -1,42 +1,47 @@
 
-export interface Message {
+export class Message {
 
   readonly msgtype: string
 
+  constructor (type: string) {
+    this.msgtype = type
+  }
+
+  toString () {
+    return JSON.stringify(this)
+  }
+
 }
 
-export class TextMessage implements Message {
+export class TextMessage extends Message {
 
   public readonly text: {content:string}
-  public readonly msgtype: string;
   public readonly at: {atMobiles:string[], isAtAll:boolean}
   constructor (content: string, at:string[] = [], atAll = false) {
-    this.msgtype = 'text'
+    super('text')
     this.text = { content }
     this.at = { atMobiles:at, isAtAll:atAll }
   }
 
 }
 
-export class MarkDownMessage implements Message {
+export class MarkDownMessage extends Message {
 
   public readonly markdown: {text:string, title:string}
-  public readonly msgtype: string;
   public readonly at: {atMobiles:string[], isAtAll:boolean}
   constructor (title: string, text:string, at:string[] = [], atAll = false) {
-    this.msgtype = 'markdown'
+    super('markdown')
     this.markdown = { text, title }
     this.at = { atMobiles:at, isAtAll:atAll }
   }
 
 }
 export type SimpleActionCard =  {text:string, title:string, singleTitle :string, singleURL: string};
-export class SimpleActionCardMessage implements Message {
+export class SimpleActionCardMessage extends Message {
 
   public readonly actionCard: SimpleActionCard
-  public readonly msgtype: string;
   constructor (card: SimpleActionCard) {
-    this.msgtype = 'actionCard'
+    super('actionCard')
     this.actionCard = card
   }
 
@@ -52,12 +57,11 @@ export type ActionCard =  {
   btnOrientation: string,
   btns: ActionCardBtn[]
 };
-export class ActionCardMessage implements Message {
+export class ActionCardMessage extends Message {
 
   public readonly actionCard: ActionCard
-  public readonly msgtype: string;
   constructor (card: ActionCard) {
-    this.msgtype = 'actionCard'
+    super('actionCard')
     this.actionCard = card
   }
 
@@ -67,22 +71,19 @@ export type FeedCardLink = {
   messageURL: string,
   picURL: string
 }
-export class FeedCardMessage implements Message {
+export class FeedCardMessage extends Message {
 
   public readonly actionCard: { links: FeedCardLink[] }
-  public readonly msgtype: string;
   constructor (links: FeedCardLink[]) {
-    this.msgtype = 'actionCard'
+    super('actionCard')
     this.actionCard = { links }
   }
 
 }
-export class EmptyMessage implements Message {
-
-  readonly msgtype: string;
+export class EmptyMessage extends Message {
 
   constructor () {
-    this.msgtype = 'empty'
+    super('empty')
   }
 
 }

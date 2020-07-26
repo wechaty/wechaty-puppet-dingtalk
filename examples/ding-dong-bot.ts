@@ -17,27 +17,12 @@
  *
  */
 import { PuppetDing } from '../src/mod'
-import { log } from 'brolog'
-import axios from 'axios'
-const send = `
-{
-     "msgtype": "text",
-    "text": {
-         "content": "pong"
-     }
-}
- `
+
 const puppet = new PuppetDing({ robot:{ port:3000 } })
 puppet.on('message', async i => {
-  log.info('11', i.messageId)
-  const wh = JSON.parse((await puppet.messagePayload(i.messageId)).text as string).sessionWebhook
-  if (/ping/gi.test((await puppet.messagePayload(i.messageId)).text as string)) {
-    // eslint-disable-next-line promise/catch-or-return
-    console.log((await puppet.messagePayload(i.messageId)).text as string)
-    axios.post(wh, send, { headers:{ 'Content-Type':'application/json' } }).then(data => {
-      log.info('test', data.data)
-      return null
-    })
+  const mes = await puppet.messagePayload(i.messageId)
+  if (/ping/gi.test(mes.text as string)) {
+    for (let i = 0; i < 30; i++) { await puppet.messageSendText(mes.roomId as string, 'dong' + i) }
   }
 
 })
