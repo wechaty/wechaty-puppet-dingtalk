@@ -19,7 +19,7 @@ export class RoomDing {
     }
     throw new Error(`No room ${id}`)
   }
-  public static create (roomId: string, hookUrl: string){
+  public static create (roomId: string, hookUrl: string) {
     const room = new RoomDing(roomId, hookUrl)
     this.rooms.set(roomId, room)
   }
