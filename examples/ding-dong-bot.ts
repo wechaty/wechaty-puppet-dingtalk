@@ -22,7 +22,7 @@ const puppet = new PuppetDing({ robot:{ port:3000 } })
 puppet.on('message', async i => {
   const mes = await puppet.messagePayload(i.messageId)
   if (/ping/gi.test(mes.text as string)) {
-    for (let i = 0; i < 30; i++) { await puppet.messageSendText(mes.roomId as string, 'dong' + i) }
+    await puppet.messageSendText(mes.roomId as string, 'dong')
   }
 
 })
